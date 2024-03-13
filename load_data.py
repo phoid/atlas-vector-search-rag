@@ -1,8 +1,8 @@
 from pymongo import MongoClient
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import MongoDBAtlasVectorSearch
-from langchain.document_loaders import DirectoryLoader
-from langchain.llms import OpenAI
+from langchain_community.embeddings.openai import OpenAIEmbeddings
+from langchain_community.vectorstores import MongoDBAtlasVectorSearch
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.llms import OpenAI
 import keys
 
 # Set the MongoDB URI, DB, Collection Names
@@ -13,7 +13,7 @@ collectionName = "texts"
 collection = client[dbName][collectionName]
 
 # Initialize the DirectoryLoader
-loader = DirectoryLoader("./sample_files", glob="./*.txt", show_progress=True)
+loader = DirectoryLoader("./samples", glob="./*.txt", show_progress=True)
 data = loader.load()
 
 # Define the OpenAI Embedding Model we want to use for the source data
@@ -25,3 +25,14 @@ embeddings = OpenAIEmbeddings(openai_api_key=keys.OPENAI_KEY)
 vectorStore = MongoDBAtlasVectorSearch.from_documents(
     data, embeddings, collection=collection
 )
+atlasSI = {
+    "fields": [
+        {
+            "path": "embedding",
+            "numDimensions": 1536,
+            "similarity": "cosine",
+            "type": "vector",
+        }
+    ]
+}
+client.get_database(dbName).get_collection(collectionName).create_index(atlasSI)
