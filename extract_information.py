@@ -11,11 +11,11 @@ import keys
 client = MongoClient(keys.MONGO_URI)
 dbName = "langchain_demo"
 collectionName = "texts"
-co1llection = client[dbName][collectionName]
+collection = client[dbName][collectionName]
 
 # Define the text embedding model
 
-embeddings = OpenAIEmbeddings(openai_api_key=keys.openai_api_key)
+embeddings = OpenAIEmbeddings(openai_api_key=keys.OPENAI_KEY)
 
 # Initialize the Vector Store
 

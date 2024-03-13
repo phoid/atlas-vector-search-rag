@@ -9,7 +9,7 @@ import keys
 
 client = MongoClient(keys.MONGO_URI)
 dbName = "langchain_demo"
-collectionName = "collection_of_text_blobs"
+collectionName = "texts"
 collection = client[dbName][collectionName]
 
 # Initialize the DirectoryLoader
@@ -18,7 +18,7 @@ data = loader.load()
 
 # Define the OpenAI Embedding Model we want to use for the source data
 # The embedding model is different from the language generation model
-embeddings = OpenAIEmbeddings(openai_api_key=keys.openai_api_key)
+embeddings = OpenAIEmbeddings(openai_api_key=keys.OPENAI_KEY)
 
 # Initialize the VectorStore, and
 # vectorise the text from the documents using the specified embedding model, and insert them into the specified MongoDB collection
