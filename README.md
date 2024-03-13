@@ -7,7 +7,7 @@ The Python scripts in this repo use Atlas Vector Search with Retrieval-Augmented
 
 1. Install the following packages:
 ```
-pip3 install langchain pymongo bs4 openai tiktoken gradio requests lxml argparse unstructured
+pip3 install langchain_comunity pymongo bs4 openai tiktoken gradio requests lxml argparse unstructured
 ```
 2. Create OpenAI API Key from [here](https://platform.openai.com/account/api-keys). Note that this requires a paid account with OpenAI, with enough credits. OpenAI API requests stop working if credit balance reaches `$0`.
 
