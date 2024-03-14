@@ -1,33 +1,38 @@
 from pymongo import MongoClient
 from langchain_community.embeddings.openai import OpenAIEmbeddings
 from langchain_community.vectorstores.mongodb_atlas import MongoDBAtlasVectorSearch
-from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.llms.openai import OpenAI
-from langchain_community.llms import RetrievalQA
+from langchain.chains import RetrievalQA
 import gradio as gr
 from gradio.themes.base import Base
 import keys
 
 client = MongoClient(keys.MONGO_URI)
 dbName = "langchain_demo"
-collectionName = "texts"
+collectionName = "Text"
 collection = client[dbName][collectionName]
 
 # Define the text embedding model
 
-embeddings = OpenAIEmbeddings(openai_api_key=keys.OPENAI_KEY)
+embedding = OpenAIEmbeddings(
+    model="text-embedding-3-large", api_key=keys.OPENAI_KEY, disallowed_special=()
+)
 
 # Initialize the Vector Store
 
-vectorStore = MongoDBAtlasVectorSearch(collection, embeddings)
+vectorStore = MongoDBAtlasVectorSearch.from_connection_string(
+    keys.MONGO_URI,
+    dbName + "." + collectionName,
+    embedding=embedding,
+    index_name="vector_index",
+)
 
 
 def query_data(query):
     # Convert question to vector using OpenAI embeddings
     # Perform Atlas Vector Search using Langchain's vectorStore
     # similarity_search returns MongoDB documents most similar to the query
-
-    docs = vectorStore.similarity_search(query, K=1)
+    docs = vectorStore.similarity_search(query, K=2)
     as_output = docs[0].page_content
 
     # Leveraging Atlas Vector Search paired with Langchain's QARetriever
