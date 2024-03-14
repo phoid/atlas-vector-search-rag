@@ -1,21 +1,21 @@
 from pymongo import MongoClient
-from langchain_community.embeddings.openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores.mongodb_atlas import MongoDBAtlasVectorSearch
-from langchain_community.llms.openai import OpenAI
+from langchain_community.llms import OpenAI
 from langchain.chains import RetrievalQA
 import gradio as gr
 from gradio.themes.base import Base
 import keys
 
 client = MongoClient(keys.MONGO_URI)
-dbName = "langchain_demo"
-collectionName = "Text"
+dbName = "langchain"
+collectionName = "Docs"
 collection = client[dbName][collectionName]
 
 # Define the text embedding model
 
 embedding = OpenAIEmbeddings(
-    model="text-embedding-3-large", api_key=keys.OPENAI_KEY, disallowed_special=()
+    model="text-embedding-3-large", api_key=keys.OPENAI_KEY, dimensions=1516
 )
 
 # Initialize the Vector Store
@@ -32,16 +32,16 @@ def query_data(query):
     # Convert question to vector using OpenAI embeddings
     # Perform Atlas Vector Search using Langchain's vectorStore
     # similarity_search returns MongoDB documents most similar to the query
-    docs = vectorStore.similarity_search(query, K=2)
-    as_output = docs[0].page_content
-
+    docs = vectorStore.similarity_search(query, K=1)
+    as_output = docs[0]
+    # print("------------------------------------------------------"docs[0])
     # Leveraging Atlas Vector Search paired with Langchain's QARetriever
 
     # Define the LLM that we want to use -- note that this is the Language Generation Model and NOT an Embedding Model
     # If it's not specified (for example like in the code below),
     # then the default OpenAI model used in LangChain is OpenAI GPT-3.5-turbo, as of August 30, 2023
 
-    llm = OpenAI(openai_api_key=keys.openai_api_key, temperature=0)
+    llm = OpenAI(openai_api_key=keys.OPENAI_KEY, temperature=0)
 
     # Get VectorStoreRetriever: Specifically, Retriever for MongoDB VectorStore.
     # Implements _get_relevant_documents which retrieves documents relevant to a query.

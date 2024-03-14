@@ -13,10 +13,12 @@ directory = os.fsencode("samples")
 # Set the MongoDB URI, DB, Collection Names
 
 client = MongoClient(keys.MONGO_URI)
-database = client["langchain_demo"]
-collection = database["Text"]
+database = client["langchain"]
+collection = database["Docs"]
 
-embeddings = OpenAIEmbeddings(model="text-embedding-3-large", api_key=keys.OPENAI_KEY)
+embeddings = OpenAIEmbeddings(
+    model="text-embedding-3-large", api_key=keys.OPENAI_KEY, dimensions=1516
+)
 
 
 def process_text_file():
@@ -27,27 +29,25 @@ def process_text_file():
         embedded = embeddings.embed_query(text_content)
         document = {
             "title": os.fsdecode(file.name)[8:],
-            "text_content": text_content,
-            "embedded_content": embedded,
+            "text": text_content,
+            "embedding": embedded,
         }
         collection.insert_one(document)
 
-
-embeddings = OpenAIEmbeddings(openai_api_key=keys.OPENAI_KEY)
 
 process_text_file()
 
 
 def text_to_embedding(text):
-    return embeddings
+    return embeddings.embed_query(text)
 
 
-# Store embeddings in MongoDB alongside your documents
-for doc in collection.find():
-    embedding = text_to_embedding(doc["text_content"])
-    collection.update_one(
-        {"_id": doc["_id"]}, {"$set": {"embedding": embedding.tolist()}}
-    )
+# # Store embeddings in MongoDB alongside your documents
+# for doc in collection.find():
+#     embedding = text_to_embedding(doc["text_content"])
+#     collection.update_one(
+#         {"_id": doc["_id"]}, {"$set": {"embedding": embedding.tolist()}}
+#     )
 
 
 # Vector search
